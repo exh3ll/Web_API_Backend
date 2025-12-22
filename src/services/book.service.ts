@@ -1,48 +1,38 @@
-// Business Layer
-import { CreateBookDTO } from "../dtos/book.dto";
+import { IBookRepository, BookRepository, book } from "../repositories/book.repository";
 import { Book } from "../types/book.type";
-import { IBookRepository, BookRepository } from "../repositories/book.repository";
-
+import { CreateBookDTO, CreateBookDTOType } from "../dtos/book.dto";
 let bookRepository: IBookRepository = new BookRepository();
-
 export class BookService {
-    createBook(book: CreateBookDTO) {
-        // business logic
-        const exist = bookRepository.findBookById(book.id);
-        if (exist) {
+    getBooks = (): Book[] => {
+        //business login/ transformation
+        let transformedBooks =
+        bookRepository
+                    .getAllBooks()
+                    .map(bk => {
+                        return {
+                            ...bk,
+                            title: bk.title.toUpperCase()
+                        }
+                    })
+        return transformedBooks;
+    }
+    createBook = (bookData: CreateBookDTOType): Book => {
+        const newBook: Book = {...bookData};
+        // same as {id: bookData.id, title: bookData.title}
+        let existingBook = bookRepository.getBookById(newBook.id);
+        if(existingBook){
             throw new Error("Book ID already exists");
         }
-        const newBook: Book = {
-            id: book.id,
-            title: book.title
-        };
-        let created: Book = bookRepository.createBook(newBook);
-        // latter transform/map
-        // ...
-        return created;
+        return bookRepository.createBook(newBook);
     }
 
-    getAllBooks(): Book[] {
-        // transform data / business logic
-        let response: Book[] = bookRepository
-            .getBooks()
-            .map(
-                (book) => {
-                    return {
-                        ...book,
-                        title: book.title.toUpperCase()
-                    }
-                }
-            );
-        return response;
-    }
+    getBookById = (id: string): Book | undefined => {
+        const book = bookRepository.getBookById(id);
 
-    getBookById(id: string): Book | undefined {
-        const book = bookRepository.findBookById(id);
-        if (!book) return undefined;
-        return {
-            ...book,
-            title: book.title.toUpperCase()
-        };
-    }
+        if (!book) {
+            throw new Error("Book not found");
+        }
+
+        return book;
+    };
 }
