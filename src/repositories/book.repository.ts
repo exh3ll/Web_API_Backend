@@ -1,26 +1,28 @@
 import { Book } from "../types/book.type";
 
-let books: Book[] = [
-    { id: 'B-1', title: 'Harry potter' },
-    { id: 'B-2', title: 'Lord of the rings', date: '29-05-2001' }
-];
+export const book: Book[] = [
+        {id: 'B-1', title: '1984'},
+        {id: 'B-2', title: 'To kill a Mockingbird', date: '2015-12-10'}
+    ];
 
-export interface IBookRepository {
+export interface IBookRepository{
+    getAllBooks(): Book[];
+    getBookById(id:string):Book | undefined;
     createBook(book: Book): Book;
-    getBooks(): Book[];
-    findBookById(id: string): Book | undefined;
 }
 
+
 export class BookRepository implements IBookRepository {
-    createBook(book: Book): Book {
-        books.push(book);
+    getAllBooks(): Book[] {
         return book;
     }
-    
-    getBooks(): Book[] {
-        return books;
+    getBookById(id: string): Book | undefined {
+
+        return book.find(bk => bk.id == id);
+        
     }
-    findBookById(id: string): Book | undefined {
-        return books.find(book => book.id === id);
+    createBook(newBook: Book): Book {
+        book.push(newBook);
+        return newBook;
     }
 }
