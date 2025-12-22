@@ -1,7 +1,6 @@
-import { z } from "zod";
-import { BookSchema } from "../types/book.type";
+import {z} from 'zod';
+import { BookSchema } from '../types/book.type';
 
-// DTO - Data Transfer Object
-// Input/Output structure
-export const CreateBookDTO = BookSchema.pick({ id: true, title: true });
-export type CreateBookDTO = z.infer<typeof CreateBookDTO>;
+// DTO  - Data Transfer Object
+export const CreateBookDTO = BookSchema.omit({date: true}); // what client sends to server
+export type CreateBookDTOType = z.infer<typeof CreateBookDTO>;
