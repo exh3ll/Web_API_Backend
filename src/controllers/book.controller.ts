@@ -1,45 +1,65 @@
-import { Request, Response } from "express";
-import { z } from "zod";
+import { Request,Response } from "express";
+import {z} from 'zod';
 import { CreateBookDTO } from "../dtos/book.dto";
 import { Book } from "../types/book.type";
 import { BookService } from "../services/book.service";
+import { id } from "zod/v4/locales";
 
-let bookService = new BookService();
+const bookService = new BookService();
+
+
+
+
+// export type Book = {
+//     id: string;
+//     title: string;
+//     date?:string;
+// }
+
 
 export class BookController {
-    createBook(req: Request, res: Response) {
-        try {
-            const parsedBook = CreateBookDTO.safeParse(req.body);
-            // auto validation
-            if (!parsedBook.success) {
-                return res.status(400).json({ errors: parsedBook.error });
+    createBook = (req: Request, res: Response) => {
+        try{
+
+            const validation = CreateBookDTO.safeParse(req.body);
+            if(!validation.success){
+              return res.status(400).json({errors:validation.error})
             }
-            const { id, title } = parsedBook.data;
-            const newBook: Book = bookService.createBook({ id, title });
+            const{ id, title} = validation.data;
+            const newBook: Book = bookService.createBook({id, title});
             return res.status(201).json(newBook);
-        } catch (error: Error | any) {
-            return res.status(500).send(error.message ?? "Internal Server Error");
+
+        }catch(err: Error | any){
+            return res.status(500).json({error: err.message ?? 'Internal Service Error'});
         }
+        
     }
 
-    getBooks(req: Request, res: Response) {
-        const requestedBook: Book[] = bookService.getAllBooks();
-        return res.status(200).json(requestedBook);
+    getBooks = (req: Request, res: Response) =>{
+    const return_book: Book[] = bookService.getBooks();
+    res.status(200).json(return_book);
     }
 
-    getBookbyID(req: Request, res: Response) {
-        try {
-            const { bookid } = req.params;
-            if (!bookid) {
-                return res.status(400).json({ error: "bookid parameter is required" });
-            }
-            const book = bookService.getBookById(bookid);
-            if (!book) {
-                return res.status(404).json({ message: "Book not found" });
-            }
-            return res.status(200).json(book);
-        } catch (error: Error | any) {
-            return res.status(500).send(error.message ?? "Internal Server Error");
+    // getBookById = (req: Request, res: Response) => {
+    //     const get_book = bookService.getBookById(id);
+    //     res.status(200).json(get_book);
+
+    // }
+
+    getBookById = (req: Request, res: Response) => {
+    try {
+        const id: string = req.params.id;
+
+        if (!id) {
+            return res.status(400).json({ message: "Book ID is required" });
         }
+
+        const book = bookService.getBookById(id);
+
+        return res.status(200).json(book);
+    } catch (error: any) {
+        return res.status(404).json({ message: error.message });
     }
+};
+
 }
