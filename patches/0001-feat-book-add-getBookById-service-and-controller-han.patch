@@ -1,0 +1,58 @@
+From 65d78e3d197a2b349513e44f2459101770802827 Mon Sep 17 00:00:00 2001
+From: blissexodia <binnoley@gmail.com>
+Date: Fri, 21 Nov 2025 10:25:52 +0545
+Subject: [PATCH] feat(book): add getBookById service and controller handler
+
+---
+ src/controllers/book.controller.ts | 16 ++++++++++++++++
+ src/services/book.service.ts       |  9 +++++++++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/src/controllers/book.controller.ts b/src/controllers/book.controller.ts
+index 4975ec9..eba8509 100644
+--- a/src/controllers/book.controller.ts
++++ b/src/controllers/book.controller.ts
+@@ -26,4 +26,20 @@ export class BookController {
+         const requestedBook: Book[] = bookService.getAllBooks();
+         return res.status(200).json(requestedBook);
+     }
++
++    getBookbyID(req: Request, res: Response) {
++        try {
++            const { bookid } = req.params;
++            if (!bookid) {
++                return res.status(400).json({ error: "bookid parameter is required" });
++            }
++            const book = bookService.getBookById(bookid);
++            if (!book) {
++                return res.status(404).json({ message: "Book not found" });
++            }
++            return res.status(200).json(book);
++        } catch (error: Error | any) {
++            return res.status(500).send(error.message ?? "Internal Server Error");
++        }
++    }
+ }
+\ No newline at end of file
+diff --git a/src/services/book.service.ts b/src/services/book.service.ts
+index 69a5391..0914359 100644
+--- a/src/services/book.service.ts
++++ b/src/services/book.service.ts
+@@ -36,4 +36,13 @@ export class BookService {
+             );
+         return response;
+     }
++
++    getBookById(id: string): Book | undefined {
++        const book = bookRepository.findBookById(id);
++        if (!book) return undefined;
++        return {
++            ...book,
++            title: book.title.toUpperCase()
++        };
++    }
+ }
+\ No newline at end of file
+-- 
+2.45.1.windows.1
+
